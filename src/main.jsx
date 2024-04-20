@@ -4,7 +4,6 @@ import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Root from "./Layout/Root.jsx";
 import Home from "./page/Home.jsx";
-import Login from "./page/Login.jsx";
 import SignUp from "./page/SignUp.jsx";
 import HeroLogin from "./page/HeroLogin.jsx";
 import Login1 from "./page/Login1.jsx";

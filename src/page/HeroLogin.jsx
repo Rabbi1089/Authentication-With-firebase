@@ -1,6 +1,11 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { useState } from "react";
+import { update } from "firebase/database";
 
 const HeroLogin = () => {
   const [signUpError, setsignUpError] = useState("");
@@ -10,6 +15,8 @@ const HeroLogin = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+    const name = e.target.name.value;
+    console.log(name, email, password);
 
     if (password.length < 6) {
       setsignUpError("Password must be 6 character");
@@ -26,6 +33,23 @@ const HeroLogin = () => {
         const user = result.user;
         console.log(user);
         setSuccess(`account created successfully with-${email}`);
+
+        //Profile updated
+        updateProfile(result.user, {
+          displayName: name,
+          photoURL: "https://example.com/jane-q-user/profile.jpg",
+        })
+          .then(() => {
+            console.log("Profile updated");
+          })
+          .catch((error) => {
+            console.log(error.message);
+          });
+
+        //sendEmailVerification
+        sendEmailVerification(result.user).then(() => {
+          alert("check your email");
+        });
       })
 
       .catch((error) => {
@@ -48,6 +72,18 @@ const HeroLogin = () => {
           </div>
           <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form onSubmit={handleHeroLogin} className="card-body">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Your Name</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  name="name"
+                  className="input input-bordered"
+                  required
+                />
+              </div>
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Email</span>
@@ -97,6 +133,9 @@ const HeroLogin = () => {
                 {success}
               </p>
             )}
+            <p>
+              Already have a account ? go to <a href="/login">Login</a>
+            </p>
           </div>
         </div>
       </div>

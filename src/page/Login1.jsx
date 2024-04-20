@@ -1,11 +1,37 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const Login1 = () => {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const emailRef = useRef(null);
+  //handleResetPassword
+  const handleResetPassword = () => {
+    const email = emailRef.current.value;
+    if (!email) {
+      console.log("Provide an email");
+      return;
+    } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+      console.log("only email accepted");
+      return;
+    }
+    //send validation email
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        alert("Please check your email");
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
+  };
+
+  //const Handle login
   const handleLogin = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
@@ -17,7 +43,11 @@ const Login1 = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user;
-        setSuccessMsg("user successfully logged");
+        if (result.user.emailVerified) {
+          setSuccessMsg("user successfully logged");
+        } else {
+          alert("please verify your email");
+        }
       })
       .catch((error) => {
         setErrorMsg(error.message);
@@ -39,7 +69,7 @@ const Login1 = () => {
                 <input
                   type="text"
                   name="email"
-                  // ref={emailRef}
+                  ref={emailRef}
                   placeholder="email"
                   className="input input-bordered"
                 />
@@ -55,7 +85,10 @@ const Login1 = () => {
                   className="input input-bordered"
                 />
                 <label className="label">
-                  <a href="#" className="label-text-alt link link-hover">
+                  <a
+                    onClick={handleResetPassword}
+                    className="label-text-alt link link-hover"
+                  >
                     Forgot password?
                   </a>
                 </label>
@@ -74,7 +107,7 @@ const Login1 = () => {
               <p className=" text-xl text-red-800 font-bold">{errorMsg}</p>
             )}
             <p>
-              New to this site ? go for <a href="/HeroLogin">Signup</a>
+              New to this site ? go for <a href="/HeroLogin">HeroLogin</a>
             </p>
           </div>
         </div>
